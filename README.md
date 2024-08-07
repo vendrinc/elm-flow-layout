@@ -17,6 +17,8 @@ type Flow node
         }
 ```
 
+![Example](https://github.com/vendrinc/elm-flow-layout/blob/main/examples/example.png?raw=true)
+
 > [!NOTE]  
 > This package likely won't receive significant updates!
 > If you run into issues, we recommend simply copying this code into your project and modifying as needed.
