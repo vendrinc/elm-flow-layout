@@ -1,7 +1,6 @@
 module Example exposing (..)
 
-{-| @story
-@covers Flow.Layout
+{-| A static layout example
 -}
 
 import Flow exposing (Flow(..))
@@ -11,11 +10,6 @@ import Html
 import Html.Attributes as Attr
 import Svg
 import Svg.Attributes as SvgAttr
-
-
-
--- import Ui
--- import Ui.Text
 
 
 main : Html.Html msg
