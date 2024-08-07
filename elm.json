@@ -1,9 +1,9 @@
 {
   "type": "package",
   "name": "vendrinc/elm-flow-layout",
-  "summary": "Flow layout",
+  "summary": "A flow layout algorithm",
   "license": "BSD-3-Clause",
-  "version": "4.2.2",
+  "version": "1.0.0",
   "exposed-modules": [
     "Flow",
     "Flow.Layout",
