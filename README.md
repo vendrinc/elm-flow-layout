@@ -22,3 +22,13 @@ type Flow node
 > [!NOTE]  
 > This package likely won't receive significant updates!
 > If you run into issues, we recommend simply copying this code into your project and modifying as needed.
+
+## Contributors
+
+Because this code was originally developed internally, we lost the git history for tracking for who developed this code.
+
+The primary authors were:
+
+- Agus Zubiaga - https://github.com/agu-z
+- Martin Janiczek - https://github.com/Janiczek
+- Macario Ortega - https://github.com/maca
