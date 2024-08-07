@@ -33,8 +33,9 @@ type Operation node
     | Remove
 
 
+{-| -}
 type alias Config node =
-    { nodeToId : node -> String
+    { toId : node -> String
     }
 
 
@@ -194,7 +195,7 @@ applyAt cfg steps op rootFlow =
                 , Flow.diff
                     { before = rootFlow
                     , after = newRootFlow_
-                    , nodeToId = cfg.nodeToId
+                    , nodeToId = cfg.toId
                     }
                 )
             )

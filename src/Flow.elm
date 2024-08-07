@@ -75,6 +75,7 @@ type Flow node
         }
 
 
+{-| -}
 getNode : Flow node -> Maybe node
 getNode flow =
     case flow of
@@ -91,6 +92,7 @@ getNode flow =
             Nothing
 
 
+{-| -}
 isSequential : Flow node -> Bool
 isSequential flow =
     case flow of
@@ -101,6 +103,7 @@ isSequential flow =
             False
 
 
+{-| -}
 isParallel : Flow node -> Bool
 isParallel flow =
     case flow of
@@ -111,6 +114,7 @@ isParallel flow =
             False
 
 
+{-| -}
 isCondition : Flow node -> Bool
 isCondition flow =
     case flow of
@@ -200,6 +204,7 @@ filter pred flow =
                 Sequential []
 
 
+{-| -}
 findNode : (a -> Maybe b) -> Flow a -> Maybe b
 findNode fn flow =
     case flow of
@@ -262,6 +267,7 @@ descendants flow =
         flow
 
 
+{-| -}
 nodes : Flow node -> List ( node, List Step )
 nodes rootFlow =
     -- TODO can `nodes` and `find` be expressed via some `fold`?
@@ -391,6 +397,7 @@ splitOnNonEmpty flows =
                 Just ( flow, rest )
 
 
+{-| -}
 leftEdge : Flow node -> List { path : List Step, node : node }
 leftEdge flow =
     case flow of
@@ -413,6 +420,7 @@ leftEdge flow =
                 |> List.concat
 
 
+{-| -}
 leftEdgeSeq : Int -> List (Flow node) -> List { path : List Step, node : node }
 leftEdgeSeq index items =
     case items of
@@ -428,6 +436,7 @@ leftEdgeSeq index items =
                     |> List.map (\item -> { item | path = InSequential index :: item.path })
 
 
+{-| -}
 dependencies : List Step -> Flow node -> List { node : node, branch : Int }
 dependencies steps rootFlow =
     let
@@ -495,6 +504,7 @@ dependencies steps rootFlow =
                             |> Maybe.withDefault []
 
 
+{-| -}
 dependants : List Step -> Flow node -> List { path : List Step, node : node, branch : Int }
 dependants steps rootFlow =
     let
@@ -589,6 +599,7 @@ dependants steps rootFlow =
             next steps
 
 
+{-| -}
 previousPath : List Step -> Maybe (List Step)
 previousPath path =
     let
@@ -621,6 +632,7 @@ previousPath path =
             outIfFirst InConditionFalse n rest
 
 
+{-| -}
 nextPath : List Step -> Flow node -> Maybe (List Step)
 nextPath path rootFlow =
     let
@@ -675,6 +687,7 @@ nextPath path rootFlow =
                     Nothing
 
 
+{-| -}
 isEmpty : Flow node -> Bool
 isEmpty flow =
     case flow of
@@ -727,6 +740,7 @@ rightEdgeNodes flow =
                 ++ falseRightEdgeNodes
 
 
+{-| -}
 type Step
     = InSequential Int
     | InParallel Int
@@ -734,6 +748,7 @@ type Step
     | InConditionFalse Int -- steps into its pseudo-Sequential
 
 
+{-| -}
 navigateTo : List Step -> Flow node -> Maybe (Flow node)
 navigateTo steps flow =
     case steps of
@@ -787,6 +802,7 @@ navigateTo steps flow =
                     Nothing
 
 
+{-| -}
 mapAt : List Step -> (Flow node -> Flow node) -> Flow node -> Flow node
 mapAt steps fn flow =
     case steps of
@@ -896,6 +912,7 @@ edges { nodeToId } flow =
     go AssocSet.empty (leftEdge flow) []
 
 
+{-| -}
 toDot : { nodeToId : node -> String } -> Flow node -> String
 toDot ({ nodeToId } as cfg) flow =
     let
@@ -944,6 +961,7 @@ toDot ({ nodeToId } as cfg) flow =
     Util.Dot.toDot nodes_ edges_
 
 
+{-| -}
 type alias DependencyChange =
     { task : String
     , newDeps : List { branch : Int, id : String }
@@ -963,6 +981,7 @@ groupBy toId list =
         list
 
 
+{-| -}
 diff :
     { before : Flow node
     , after : Flow node
@@ -1045,6 +1064,7 @@ diff { before, after, nodeToId } =
             )
 
 
+{-| -}
 findMap : (Flow node -> Maybe a) -> Flow node -> Maybe ( a, List Step )
 findMap fn rootFlow =
     -- TODO can `nodes` and `find` be expressed via some `fold`?
@@ -1080,6 +1100,7 @@ findMap fn rootFlow =
     go [ ( rootFlow, [] ) ]
 
 
+{-| -}
 find : (Flow node -> Bool) -> Flow node -> Maybe ( Flow node, List Step )
 find pred =
     findMap
@@ -1113,6 +1134,7 @@ optimizeAll =
         ]
 
 
+{-| -}
 unwrapSequential : Flow node -> List (Flow node)
 unwrapSequential x =
     case x of
@@ -1123,6 +1145,7 @@ unwrapSequential x =
             [ x ]
 
 
+{-| -}
 optimizeNestedSequential : Flow node -> Maybe (Flow node)
 optimizeNestedSequential flow =
     case flow of
@@ -1137,6 +1160,7 @@ optimizeNestedSequential flow =
             Nothing
 
 
+{-| -}
 unwrapParallel : Flow node -> List (Flow node)
 unwrapParallel x =
     case x of
@@ -1147,6 +1171,7 @@ unwrapParallel x =
             [ x ]
 
 
+{-| -}
 optimizeNestedParallel : Flow node -> Maybe (Flow node)
 optimizeNestedParallel flow =
     case flow of
@@ -1161,6 +1186,7 @@ optimizeNestedParallel flow =
             Nothing
 
 
+{-| -}
 optimizeEmptySequentialInParallel : Flow node -> Maybe (Flow node)
 optimizeEmptySequentialInParallel flow =
     case flow of
@@ -1175,6 +1201,7 @@ optimizeEmptySequentialInParallel flow =
             Nothing
 
 
+{-| -}
 optimizeSingletonSequential : Flow node -> Maybe (Flow node)
 optimizeSingletonSequential flow =
     case flow of
@@ -1185,6 +1212,7 @@ optimizeSingletonSequential flow =
             Nothing
 
 
+{-| -}
 optimizeSingletonParallel : Flow node -> Maybe (Flow node)
 optimizeSingletonParallel flow =
     case flow of
@@ -1208,6 +1236,7 @@ optimizeNormalizeEmpty flow =
             Nothing
 
 
+{-| -}
 optimizeSeqInConditionTrue : Flow node -> Maybe (Flow node)
 optimizeSeqInConditionTrue flow =
     case flow of
@@ -1222,6 +1251,7 @@ optimizeSeqInConditionTrue flow =
             Nothing
 
 
+{-| -}
 optimizeSeqInConditionFalse : Flow node -> Maybe (Flow node)
 optimizeSeqInConditionFalse flow =
     case flow of
@@ -1277,6 +1307,7 @@ recursiveChildren fn flow =
             List.concatMap fn trueSeq ++ List.concatMap fn falseSeq
 
 
+{-| -}
 sortParallel : { toPosition : node -> comparable } -> Flow node -> Flow node
 sortParallel { toPosition } flow =
     Transform.transformOnce

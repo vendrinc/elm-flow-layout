@@ -3,6 +3,7 @@ module Flow.Viewer exposing
     , init, update, subscriptions
     , focusOn, focusOnWith
     , seeAll, seeAllWith
+    , setOffset, Offset
     , zoomCenter
     , withTransitions
     , setViewportBox
@@ -11,7 +12,7 @@ module Flow.Viewer exposing
     , viewSolidConnection
     , cssNodeId, cssBranchLabelId
     , toViewportCoords
-    , MeasureState, Offset, resizeMsgBox
+    , resizeMsgBox, MeasureState
     )
 
 {-|
@@ -20,15 +21,17 @@ module Flow.Viewer exposing
 @docs init, update, subscriptions
 @docs focusOn, focusOnWith
 @docs seeAll, seeAllWith
-@docs getOffset, setOffset
+@docs setOffset, Offset
 @docs zoomCenter
 @docs withTransitions
 @docs setViewportBox
-@docs mapNodes, setLayout
+@docs setLayout
 @docs view, BranchLabel, Lazy, Lazy4
 @docs viewSolidConnection
 @docs cssNodeId, cssBranchLabelId
 @docs toViewportCoords
+
+@docs resizeMsgBox, MeasureState
 
 -}
 
@@ -68,12 +71,14 @@ type alias Box =
     }
 
 
+{-| -}
 type MeasureState
     = Measured Box
     | AwaitingMeasure
     | AwaitingMeasureAndFocus String
 
 
+{-| -}
 type alias Offset =
     { x : Float
     , y : Float
@@ -81,15 +86,26 @@ type alias Offset =
 
 
 {-| -}
-init : { nodeToString : node -> String } -> Layout node -> Model node
-init { nodeToString } layout =
+init :
+    { toId : node -> String
+    , viewportBox : Maybe Box
+    }
+    -> Layout node
+    -> Model node
+init options layout =
     { zoom = 1
     , offset = { x = 0, y = 0 }
-    , viewportBox = AwaitingMeasure
+    , viewportBox =
+        case options.viewportBox of
+            Just box ->
+                Measured box
+
+            Nothing ->
+                AwaitingMeasure
     , panning = False
     , layout =
         layout
-            |> Flow.Layout.mapNodes (\node -> ( nodeToString node, node ))
+            |> Flow.Layout.mapNodes (\node -> ( options.toId node, node ))
     , transitions = False
     }
 
@@ -104,6 +120,7 @@ type Msg
     | PanEnded
 
 
+{-| -}
 resizeMsgBox : Msg -> Maybe Box
 resizeMsgBox msg =
     case msg of
@@ -181,6 +198,7 @@ update msg model =
             { model | panning = False }
 
 
+{-| -}
 subscriptions : Model node -> (Msg -> msg) -> Maybe (Int -> Int -> Json.Decode.Decoder msg) -> Sub msg
 subscriptions model toMsg onMouseMove =
     if model.panning then
@@ -212,13 +230,13 @@ subscriptions model toMsg onMouseMove =
 {-| Update layout but keep the same zoom and offset.
 -}
 setLayout :
-    { nodeToString : node -> String
+    { toId : node -> String
     , layout : Layout node
     }
     -> Model node
     -> Model node
-setLayout { nodeToString, layout } model =
-    { model | layout = Flow.Layout.mapNodes (\node -> ( nodeToString node, node )) layout }
+setLayout { toId, layout } model =
+    { model | layout = Flow.Layout.mapNodes (\node -> ( toId node, node )) layout }
 
 
 {-| Set viewport box explicitly.
@@ -347,6 +365,7 @@ seeAll =
     seeAllWith { bounded = True, offsetY = 0 }
 
 
+{-| -}
 seeAllWith : { bounded : Bool, offsetY : Float } -> Model node -> Model node
 seeAllWith { bounded, offsetY } model =
     let
@@ -399,6 +418,7 @@ focusOn { id } =
         }
 
 
+{-| -}
 focusOnWith : { id : String, onlyHorizontally : Bool, offsetX : Int, offsetY : Int } -> Model node -> Model node
 focusOnWith { id, onlyHorizontally, offsetX, offsetY } model =
     case model.viewportBox of
@@ -472,12 +492,14 @@ type alias BranchLabel msg =
     }
 
 
+{-| -}
 type alias Lazy a r =
     { fn : a -> r
     , a : a
     }
 
 
+{-| -}
 type alias Lazy4 a b c d r =
     { fn : a -> b -> c -> d -> r
     , a : a
@@ -618,6 +640,7 @@ viewConnections ca viewConnection layout =
         |> viewScaledSvg layout
 
 
+{-| -}
 viewSolidConnection : Flow.Line.Path -> Html.Html msg
 viewSolidConnection =
     Html.Lazy.lazy

@@ -1,34 +1,41 @@
 module Flow.Line exposing
-    ( Path(..)
-    , Point
-    , Stroke(..)
-    , toCommands
-    , view
+    ( Path(..), Point, Stroke(..)
+    , toCommands, view
     )
 
-{-| -}
+{-|
+
+@docs Path, Point, Stroke
+
+@docs toCommands, view
+
+-}
 
 import Html exposing (Html)
 import Svg
 import Svg.Attributes as SvgAttr
 
 
+{-| -}
 type Path
     = Horizontal Point (List Point) Point
     | Vertical Point Point
 
 
+{-| -}
 type alias Point =
     { x : Int
     , y : Int
     }
 
 
+{-| -}
 type Stroke
     = Dashed Int
     | Solid
 
 
+{-| -}
 view :
     List (Svg.Attribute msg)
     ->
@@ -75,6 +82,7 @@ view extraAttrs cfg path =
     Svg.path (attrs ++ extraAttrs) []
 
 
+{-| -}
 toCommands : Int -> Path -> String
 toCommands radius path =
     case path of

@@ -19,6 +19,8 @@ module Flow.Layout exposing
 @docs ConditionRoot
 @docs mapNodes
 
+@docs Size
+
 -}
 
 import Flow exposing (Flow(..))
@@ -39,6 +41,7 @@ type alias Config node =
     }
 
 
+{-| -}
 type alias NodeProperties =
     { width : Int
     , height : Int
